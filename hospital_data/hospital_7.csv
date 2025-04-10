@@ -1,0 +1,2 @@
+subject_id,hadm_id,admission_type,diagnosis_severity,lab_severity,treatment_intensity,los_hours,outcome,primary_diagnosis,discharge_location
+41976,145024,EMERGENCY,2,5,4,68.7,0,RESPIRATORY DISTRESS,SNF
