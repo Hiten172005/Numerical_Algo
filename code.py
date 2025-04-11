@@ -79,25 +79,8 @@ def load_hospital_data(data_dir):
         raise ValueError("No valid hospital data files found")
     return hospitals
 
-def get_action(state, theta, epsilon=0.1, current_treatment=None):
-    """
-    Choose action based on actual treatment data with epsilon chance of exploration.
-    current_treatment: The actual treatment intensity from the data (0-5)
-    """
-    if np.random.random() < epsilon:  # Explore
-        return np.random.choice([0, 1])
-    
-    # Use the actual treatment from data (convert intensity to binary action)
-    if current_treatment is not None:
-        return 1 if current_treatment >= 3 else 0  # Threshold for treatment decision
-    
-    # Fallback to policy if no treatment data available
-    value_no_treatment = theta[state]
-    value_treatment = theta[max(0, state-1)]
-    return 1 if value_treatment > value_no_treatment else 0
-
 def local_training_real(env, episodes=20, theta=None):
-    """Collect samples using treatment data from records."""
+    """Collect samples using treatment data from historical records."""
     if theta is None:
         theta = np.zeros(env.num_states)
     
@@ -106,10 +89,8 @@ def local_training_real(env, episodes=20, theta=None):
         s = env.reset()
         done = False
         while not done:
-            # Get current treatment intensity from environment
-            current_treatment = env.get_current_treatment()
-            action = get_action(s, theta, current_treatment=current_treatment)
-            s_next, reward, done = env.step(s, action)
+            # No need to determine action - step will use the data-based action
+            s_next, reward, done = env.step(s, None)  # Pass None since action will be overridden
             samples.append((s, reward, s_next))
             s = s_next
     return samples
@@ -141,7 +122,7 @@ def federated_avg(local_thetas):
     return np.mean(local_thetas, axis=0)
 
 def centralized_training(env, num_states, episodes=60):
-    """Centralized training with epsilon-greedy policy."""
+    """Centralized training using historical data actions."""
     theta = np.zeros(num_states)
     samples = []
     
@@ -149,8 +130,8 @@ def centralized_training(env, num_states, episodes=60):
         s = env.reset()
         done = False
         while not done:
-            action = get_action(s, theta)
-            s_next, reward, done = env.step(s, action)
+            # No need to determine action - step will use the data-based action
+            s_next, reward, done = env.step(s, None)  # Pass None since action will be overridden
             samples.append((s, reward, s_next))
             s = s_next
         # Update theta using collected samples
@@ -168,7 +149,9 @@ def compare_federated_vs_centralized_real(data_dir, num_rounds=5):
     for r in range(num_rounds):
         local_thetas = []
         for hospital_data in hospitals_data:
+            print(hospital_data)
             env = RealMedicalEnv(hospital_data)
+            print(env)
             samples = local_training_real(env)
             theta = LSTD(samples, num_states)
             local_thetas.append(theta)
