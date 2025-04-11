@@ -62,7 +62,7 @@ def load_hospital_data(data_dir):
         raise ValueError("No valid hospital data files found")
     return hospitals
 
-def LSTDQ(samples, num_states, num_actions, gamma=0.9):
+def LSTDQ(samples, num_states, num_actions, Q, gamma=0.9):
     """LSTD-Q for policy evaluation"""
     n_features = num_states * num_actions
     A = np.zeros((n_features, n_features))
@@ -103,8 +103,8 @@ def policy_iteration(env, num_states, num_actions, iterations=5):
                 samples.append((s, a, r, s_next))
                 s = s_next
         
-        # Policy evaluation
-        Q = LSTDQ(samples, num_states, num_actions)
+        # Policy evaluation - pass current Q to LSTDQ
+        Q = LSTDQ(samples, num_states, num_actions, Q)
         
         # Policy improvement
         policy = lambda s: np.argmax(Q[s])
