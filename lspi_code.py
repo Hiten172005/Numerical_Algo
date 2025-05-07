@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import os
 from collections import defaultdict
+import time
 
 class RealMedicalEnv:
     def __init__(self, hospital_data):
@@ -164,5 +165,8 @@ def compare_lspi(data_dir):
         print(f"State {s}: Fed Action={fed_policy(s)} | Cen Action={cen_policy(s)}")
 
 if __name__ == "__main__":
-    data_dir = "/Users/hitengarg/Documents/Numerical Algo/Project/Numerical_Algo/hospital_data"
+    start_time = time.time()
+    data_dir = "/home/khwaish-garg/Desktop/SEM-4/NA/Project/Numerical_Algo/hospital_data"
     compare_lspi(data_dir)
+    end_time = time.time()
+    print(f"Time taken to run the entire script: {end_time - start_time:.4f} seconds")
