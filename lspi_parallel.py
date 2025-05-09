@@ -38,9 +38,9 @@ class RealMedicalEnv:
         # Reward calculation
         reward = -s_next  # Base reward
         if next_row['outcome'] == 0:  # Survival bonus
-            reward += 5
+            reward += 10
         if action == 1 and current_row['treatment_intensity'] >= 4:  # Treatment cost
-            reward -= 2
+            reward -= 1
             
         done = (next_row['outcome'] == 1) or (self.current_idx >= len(patient_data) - 1)
         return s_next, reward, done
@@ -177,7 +177,7 @@ def compare_lspi(data_dir):
 
 if __name__ == "__main__":
     start_time = time.time()
-    data_dir = "/home/khwaish-garg/Desktop/SEM-4/NA/Project/Numerical_Algo/hospital_data"
+    data_dir = os.path.join(os.getcwd(), 'hospital_data')
     compare_lspi(data_dir)
     end_time = time.time()
     print(f"Total execution time: {end_time - start_time:.4f} seconds")
